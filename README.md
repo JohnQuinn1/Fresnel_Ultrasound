@@ -1,8 +1,10 @@
 # Fresnel Diffraction using Ultrasound Experiment
 
-In 2022 the Fresnel Diffraction using Ultrasound Experiment was 
-automated using a micro-stepped stepper motor to precisely move 
-the diffracting screen and a USB Oscilloscope to record the traces.
+In 2022, as a Stage 4 final-year project, the Fresnel Diffraction 
+using Ultrasound Experiment was automated using a micro-stepped stepper 
+motor to precisely move the diffracting screen and a USB Oscilloscope to 
+record the traces. The project was undertaken by Jessica Riordan 
+
 
 Python was used for the stepper motor control, USB oscilloscope 
 readout and data analysis.
@@ -16,8 +18,10 @@ We originally used Adafruit's Blinka but found it too slow for this application.
 
 The stepper motor control is achieved by defining a set of functions in micropython 
 on the Pi Pico which are in a file call main.py that gets executed when the Pico starts up.
-These functions can then be called from Python on the PC using PySerial. Using the
-Pico in this way results in whatever one would see in Thonny being sent over serial instead,
+These functions can then be called from Python on the PC using PySerial. Note: for safety reasons
+only these functions should be used for moving the motor as they check for limits being reached.
+
+Using the Pico in this way results in whatever one would see in Thonny being sent over serial instead,
 including '>>>' so these have to be handled in the code. Sample code is provided in this
 repository.
 
