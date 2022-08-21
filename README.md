@@ -41,6 +41,6 @@ To perform the Fresnel Integrals use the [scipy.special.fresnel](https://docs.sc
 
 ### Hankel Transforms
 While there are several libraries
-available in Oython for performing Hankel Transforms (pyhank and hankel) we found for this experiment
+available in Python for performing Hankel Transforms (pyhank and hankel) we found for this experiment
 directl peforming the transform using Bessel functions: [Scipy Special Bessel](https://docs.scipy.org/doc/scipy/reference/special.html#bessel-functions) and numerically integrate using 
 [scipy.integrate.quad](https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.quad.html)
