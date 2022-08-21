@@ -1,10 +1,10 @@
 # Code for Fresnel Diffraction using Ultrasound Experiment
 
 In 2022, as a Stage 4 final-year project, the Fresnel Diffraction 
-using Ultrasound Experiment was automated using a micro-stepped stepper 
-motor to precisely move the diffracting screen and a USB Oscilloscope to 
-record the traces. The project was undertaken by Jessica Riordan 
-
+using Ultrasound Experiment was automated using a linear slider rail controlled
+with a micro-stepped motor to precisely move the diffracting screen and a USB Oscilloscope to 
+read out the traces. The project was undertaken by Jessica Riordan and the code
+she developed was the starting point for this work. 
 
 Python was used for the stepper motor control, USB oscilloscope 
 readout and data analysis.
