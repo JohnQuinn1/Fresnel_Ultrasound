@@ -12,14 +12,14 @@ import time
 pin_step = Pin(2, Pin.OUT)                        # Set up Step pin
 pin_dir = Pin(3, Pin.OUT)                         # Set up Direction pin
 
-pin_mircostepM1 = Pin(8, Pin.OUT)
-pin_mircostepM2 = Pin(7, Pin.OUT)
-pin_mircostepM3 = Pin(6, Pin.OUT)
+pin_mircostepper_M1 = Pin(8, Pin.OUT)
+pin_mircostepper_M2 = Pin(7, Pin.OUT)
+pin_mircostepper_M3 = Pin(6, Pin.OUT)
 
 # set to 1/16 microstep?
-pin_mircostepM1.value(1)
-pin_mircostepM2.value(1)
-pin_mircostepM3.value(0)
+pin_mircostepper_M1.value(1)
+pin_mircostepper_M2.value(1)
+pin_mircostepper_M3.value(0)
 ####
 
 ####
@@ -27,21 +27,21 @@ pin_mircostepM3.value(0)
 # There is no limit sensor at the other end but the limit is achieved in software through
 # setting a maximum on the number of steps that can be taken. 
 
-pin_limitsensor = Pin(9, Pin.IN, Pin.PULL_UP)
+pin_limit_sensor = Pin(9, Pin.IN, Pin.PULL_UP)
 
-maxsteps16 = 200_000   # macimum number of steps for 1/16 microstepping.
+max_steps_16 = 200_000   # macimum number of steps for 1/16 microstepping.
 
 ####
 
 initialised = False
-currentpos = 0
-steptime16_us = 200.       # Note: will not move with steptime 200us if not microstepping
+current_pos = 0
+step_time_16_us = 200.       # Note: will not move with steptime 200us if not microstepping
 
-maxsteps = maxsteps16
-steptime_us = steptime16_us
+max_steps = max_steps_16
+step_time_us = step_time_16_us
 
 
-def _step(direction):
+def _step(direction: int) -> None:
     """take one step in the given direction where 
     the direction is either 0 for away from limit switch/motor 
     or 1 for towards the limit switch/motor.
@@ -50,56 +50,59 @@ def _step(direction):
   
     pin_dir.value(direction)
     pin_step.value(0)
-    time.sleep_us(steptime_us)
+    time.sleep_us(step_time_us)
     pin_step.value(1)
-    time.sleep_us(steptime_us)
+    time.sleep_us(step_time_us)
 
 
-def initialise():
+def initialise() -> None:
     """Bring back to limit switch and then back off slightly to release the limit switch.
     This funciton must be called before any further movement of the motor can be done.
     Note that the position of 0 is defined as the point at which the limit switch is released. 
+    
     This function intially prints "Initialising" and then starts to move the slider - it
-    does not return any value nor does it print anything when done. It is blocking so 
-    no other commands will be accepted while initialisation is being done"""
+    does not return any value nor does it print anything when done. 
+    
+    It is blocking so no other commands will be accepted while initialisation is being done"""
     
     global initialised
-    global maxsteps
-    global currentpos
+    global max_steps
+    global current_pos
    
-    printf("Initialising")
+    printf("Initialising")        # must print as cannot return here
     
     # move 'home' until limit sensor is triggered
-    while pin_limitsensor.value(): 
+    while pin_limit_sensor.value(): 
         _step(1)   
 
     # now back off until limit sensor is no longer set    
-    while not pin_limitsensor.value():
+    while not pin_limit_sensor.value():
         _step(0)
     
     initialised = True
-    currentpos = 0
+    current_pos = 0
     
     
-def atlimit():
-    if limitsensor.value():
+def at_limit() -> bool:
+    """Check if the limitsensor switch is set"""
+    if limit_sensor.value():
         return False
     else:
         return True
     
-def getcurrentpos():
-    global currentpos
-    return currentpos
+def get_current_pos() -> int:
+    global current_pos
+    return current_pos
 
-def move(steps):
+def move(steps: int) -> str:
     """Move slider a given number steps.
     If steps is positive then it is away from the motor/limit sensor.
     If steps is negative then it is towards the motor/limit sensor.
     
     The possible return values are:
-    "Not Initialised!"
+    "Not initialised!"
     "Beyond limit requested - not moved"
-    "Limit hit - you must reinitilise before moving again."
+    "Limit hit - you must re-initilise() before moving again."
     "Success"
     
     Note: if the number of steps requested takes longer than the tieout set in PySerial 
@@ -108,11 +111,11 @@ def move(steps):
     """
     
     global initialised
-    global maxsteps
-    global currentpos
+    global max_steps
+    global current_pos
     
     if not initialised:
-        return "Not Initialised!"
+        return "Not initialised!"
    
     target_steps = abs(steps)
     
@@ -124,7 +127,7 @@ def move(steps):
     counter = 0
     pin_dir.value(direction)                              
     
-    if currentpos + steps > maxsteps:
+    if current_pos + steps > max_steps:
         return "Beyond limit requested - not moved"
 
     current_pos += steps
@@ -133,9 +136,9 @@ def move(steps):
         counter = counter + 1
         _step(direction)
         
-        if not limitsensor.value():
-            initialised=False
-            currentpos=0
-            return "Limit hit - you must reinitilise before moving again."
+        if at_limit():
+            initialised = False
+            current_pos = 0
+            return "Limit hit - you must re-initilise() before moving again."
      
-    return("Success")       
+    return "Success"       
