@@ -1,4 +1,4 @@
-# Fresnel Diffraction using Ultrasound Experiment
+# Code for Fresnel Diffraction using Ultrasound Experiment
 
 In 2022, as a Stage 4 final-year project, the Fresnel Diffraction 
 using Ultrasound Experiment was automated using a micro-stepped stepper 
