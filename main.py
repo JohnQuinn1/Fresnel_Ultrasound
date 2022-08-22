@@ -35,7 +35,7 @@ max_steps_16 = 200_000   # macimum number of steps for 1/16 microstepping.
 
 initialised = False
 current_pos = 0
-step_time_16_us = 200.       # Note: will not move with steptime 200us if not microstepping
+step_time_16_us = 200       # Note: will not move with steptime 200us if not microstepping
 
 max_steps = max_steps_16
 step_time_us = step_time_16_us
@@ -61,7 +61,7 @@ def initialise() -> None:
     Note that the position of 0 is defined as the point at which the limit switch is released. 
     
     This function intially prints "Initialising" and then starts to move the slider - it
-    does not return any value nor does it print anything when done. 
+    then prints "Initialised" when finished. 
     
     It is blocking so no other commands will be accepted while initialisation is being done"""
     
@@ -69,23 +69,24 @@ def initialise() -> None:
     global max_steps
     global current_pos
    
-    printf("Initialising")        # must print as cannot return here
+    print("Initialising")        # must print as cannot return here
     
     # move 'home' until limit sensor is triggered
-    while pin_limit_sensor.value(): 
+    while not _at_limit(): 
         _step(1)   
 
     # now back off until limit sensor is no longer set    
-    while not pin_limit_sensor.value():
+    while _at_limit():
         _step(0)
     
     initialised = True
     current_pos = 0
     
+    print("Initialised")
     
-def at_limit() -> bool:
+def _at_limit() -> bool:
     """Check if the limitsensor switch is set"""
-    if limit_sensor.value():
+    if pin_limit_sensor.value():
         return False
     else:
         return True
@@ -94,28 +95,37 @@ def get_current_pos() -> int:
     global current_pos
     return current_pos
 
+def get_max_pos() -> int:
+    global max_steps
+    return max_steps
+
 def move(steps: int) -> str:
     """Move slider a given number steps.
     If steps is positive then it is away from the motor/limit sensor.
     If steps is negative then it is towards the motor/limit sensor.
     
-    The possible return values are:
-    "Not initialised!"
-    "Beyond limit requested - not moved"
-    "Limit hit - you must re-initilise() before moving again."
+    The word "Moving" is initially printed.
+    
+    Later, one of the following is printed:
+    "Error: Not initialised!"
+    "Error: Beyond limit requested - not moved"
+    "Error: Limit hit - you must re-initilise() before moving again."
     "Success"
     
     Note: if the number of steps requested takes longer than the tieout set in PySerial 
-    then nothing may be returned and a re-read of the serial should be performed
-    at a later time. 
+    then the second message may not yet have been been printed and a re-read of the serial
+    should be performed at a later time. 
     """
+    
+    print("Moving")
     
     global initialised
     global max_steps
     global current_pos
     
     if not initialised:
-        return "Not initialised!"
+        print("Error: Not initialised!")
+        return
    
     target_steps = abs(steps)
     
@@ -128,7 +138,8 @@ def move(steps: int) -> str:
     pin_dir.value(direction)                              
     
     if current_pos + steps > max_steps:
-        return "Beyond limit requested - not moved"
+        print("Error: Beyond limit requested - not moved")
+        return
 
     current_pos += steps
               
@@ -136,9 +147,13 @@ def move(steps: int) -> str:
         counter = counter + 1
         _step(direction)
         
-        if at_limit():
+        if _at_limit():
             initialised = False
             current_pos = 0
-            return "Limit hit - you must re-initilise() before moving again."
+            print("Error: Limit switch hit - you must re-initilise() before moving again.")
+            return
      
-    return "Success"       
+    print("Success")
+    return
+
+
