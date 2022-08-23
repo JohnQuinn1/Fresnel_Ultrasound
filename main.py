@@ -109,7 +109,7 @@ def move(steps: int) -> str:
     Later, one of the following is printed:
     "Error: Not initialised!"
     "Error: Beyond limit requested - not moved"
-    "Error: Limit hit - you must re-initilise() before moving again."
+    "Error: Limit switch hit - you must re-initilise() before moving again."
     "Success"
     
     Note: if the number of steps requested takes longer than the tieout set in PySerial 
