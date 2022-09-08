@@ -99,7 +99,7 @@ def get_max_pos() -> int:
     global max_steps
     return max_steps
 
-def move(steps: int) -> str:
+def move(steps: int) -> None:
     """Move slider a given number steps.
     If steps is positive then it is away from the motor/limit sensor.
     If steps is negative then it is towards the motor/limit sensor.
